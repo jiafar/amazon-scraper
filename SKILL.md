@@ -73,10 +73,8 @@ docker run -t --rm amazon-scraper node assets/amazon_handler.js "URL" --pages 2
 # 保存结果到文件
 docker run -t --rm -v ~/scrapes:/data amazon-scraper node assets/amazon_handler.js "URL" --output result.json
 
-# 多代理轮询（每页自动切换代理）
-docker run -t --rm -v ~/scrapes:/data \
-  -e AMAZON_PROXIES="http://user:pass@host:8001,http://user:pass@host:8002,http://user:pass@host:8003" \
-  amazon-scraper node assets/amazon_handler.js "URL" --pages 3 --output result.json
+# 用自己的代理覆盖内置配置
+docker run -t --rm -e AMAZON_PROXIES="http://user:***@host:8001,..." amazon-scraper node assets/amazon_handler.js "URL"
 ```
 
 **输出格式:** JSON
@@ -108,20 +106,20 @@ docker run -t --rm -v ~/scrapes:/data \
 **触发条件:** 非Amazon的URL，或用户提到爬取/抓取任意网页内容
 
 - 基于和 Amazon 模式相同的 `playwright-extra` + Stealth 架构
-- 支持同样的代理配置（`AMAZON_PROXY` / `AMAZON_PROXIES`）
+- 内置代理已预配置，无需额外设置
 - 支持 `--output` 文件保存
+- 可通过环境变量覆盖内置代理
 - Playwright打开页面，等待JS加载完成
 - 提取 `document.body.innerText`（纯文本，去广告噪音）
 - 输出上限10000字符
 - 输出: `{status:"SUCCESS", type:"GENERIC", title, data}`
 
 ```bash
-# 通用爬取
+# 通用爬取（代理已内置）
 docker run -t --rm amazon-scraper node assets/main_handler.js "https://任意网址"
 
-# 带代理 + 保存文件
+# 保存文件
 docker run -t --rm -v ~/scrapes:/data \
-  -e AMAZON_PROXY="http://user:pass@host:7777" \
   amazon-scraper node assets/main_handler.js "https://任意网址" --output page.json
 ```
 
@@ -162,7 +160,9 @@ docker run -t --rm -v ~/scrapes:/data \
 
 ## 代理配置
 
-支持两种环境变量注入方式：
+**本 skill 已内置 5 个轮询代理，无需额外配置即可直接使用。**
+
+如需覆盖内置代理，可通过环境变量注入自己的代理：
 
 | 变量 | 用途 | 格式 |
 |---|---|---|
@@ -171,8 +171,7 @@ docker run -t --rm -v ~/scrapes:/data \
 
 - **轮询**：多页爬取时每页自动切换下一个代理
 - **故障切换**：单页失败时自动重试列表中下一个代理
-- `-cc-US` 用户名后缀可指定国家 IP
-- `-sessid-xxx` 可保持 sticky session
+- 代理配置存放于 `config/proxies.json`，可直接修改文件更新代理列表
 
 ## 反爬能力
 - **playwright-extra + puppeteer-extra-plugin-stealth** — 自动修改 navigator、WebGL、Canvas 等 headless 特征

@@ -25,13 +25,27 @@ function saveResult(data) {
 }
 
 // ---- Proxy rotation setup ----
-const PROXY_LIST = (() => {
+// Load built-in proxy config, allow env vars to override
+function loadProxies() {
+    try {
+        const configPath = path.join(__dirname, '..', 'config', 'proxies.json');
+        if (fs.existsSync(configPath)) {
+            const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+            if (cfg.proxies && cfg.proxies.length > 0) {
+                return cfg.proxies;
+            }
+        }
+    } catch (e) {
+        console.error('Failed to load config/proxies.json:', e.message);
+    }
     const single = process.env.AMAZON_PROXY;
     const multi = process.env.AMAZON_PROXIES;
     if (multi) return multi.split(',').map(s => s.trim()).filter(Boolean);
     if (single) return [single];
     return [];
-})();
+}
+
+const PROXY_LIST = loadProxies();
 
 let proxyIdx = 0;
 function getNextProxy() {

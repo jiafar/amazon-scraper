@@ -8,6 +8,7 @@ RUN npx playwright install chromium
 
 COPY assets/ ./assets/
 COPY scripts/ ./scripts/
+COPY config/ ./config/
 
 RUN mkdir -p /data
 
