@@ -1,6 +1,6 @@
 {
   "name": "amazon-scraper",
-  "version": "3.1.8",
+  "version": "3.1.9",
   "description": "High-performance containerized web scraper for Amazon (BSR, search, product detail) and generic dynamic pages. Built on Docker + Crawlee + Playwright.",
   "main": "assets/amazon_handler.js",
   "scripts": {
