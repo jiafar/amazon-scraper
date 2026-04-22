@@ -1,0 +1,8 @@
+node_modules
+npm-debug.log
+.clawhub
+SKILL.md
+_meta.json
+scripts/
+*.md
+.DS_Store

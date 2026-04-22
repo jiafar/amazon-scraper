@@ -1,12 +1,32 @@
 {
   "name": "amazon-scraper",
-  "version": "1.0.0",
-  "description": "Amazon product scraper with Playwright stealth automation",
+  "version": "3.1.4",
+  "description": "High-performance containerized web scraper for Amazon (BSR, search, product detail) and generic dynamic pages. Built on Docker + Crawlee + Playwright.",
+  "main": "assets/amazon_handler.js",
   "scripts": {
-    "scrape": "node scripts/amazon-scrape.js",
-    "setup": "npm install && npx playwright install chromium"
+    "test": "node assets/main_handler.js https://www.amazon.com/zgbs/electronics",
+    "setup": "bash scripts/setup.sh"
   },
+  "keywords": [
+    "amazon",
+    "scraper",
+    "asin",
+    "bsr",
+    "crawlee",
+    "playwright",
+    "openclaw",
+    "docker"
+  ],
+  "author": "Joseph",
+  "license": "MIT",
   "dependencies": {
-    "playwright": "^1.50.0"
+    "crawlee": "^3.0.0",
+    "playwright": "^1.40.0"
+  },
+  "openclaw": {
+    "requires": {
+      "docker": true
+    },
+    "requiredBinaries": ["docker"]
   }
 }
