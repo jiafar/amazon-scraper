@@ -1,5 +1,4 @@
 node_modules
 npm-debug.log
-.clawhub
-_meta.json
 .DS_Store
+_meta.json
