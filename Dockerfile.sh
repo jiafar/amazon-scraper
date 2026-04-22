@@ -11,4 +11,4 @@ COPY scripts/ ./scripts/
 
 RUN mkdir -p /data
 
-CMD ["node"]
+CMD ["node", "assets/amazon_handler.js"]

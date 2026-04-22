@@ -1,6 +1,6 @@
 {
   "name": "amazon-scraper",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "High-performance containerized web scraper for Amazon (BSR, search, product detail) and generic dynamic pages. Built on Docker + Crawlee + Playwright.",
   "main": "assets/amazon_handler.js",
   "scripts": {
@@ -20,7 +20,8 @@
   "author": "Joseph",
   "license": "MIT",
   "dependencies": {
-    "crawlee": "^3.0.0",
+    "playwright-extra": "^4.3.6",
+    "playwright-extra-plugin-stealth": "^2.11.2",
     "playwright": "^1.40.0"
   },
   "openclaw": {

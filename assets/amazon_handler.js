@@ -1,4 +1,6 @@
-const { PlaywrightCrawler } = require('crawlee');
+const { chromium } = require('playwright-extra');
+const stealth = require('playwright-extra-plugin-stealth')();
+chromium.use(stealth);
 
 const args = process.argv.slice(2);
 const targetUrl = args.find(a => a.startsWith('http'));
@@ -20,23 +22,27 @@ function detectPageType(url) {
 
 const pageType = detectPageType(targetUrl);
 
-const crawler = new PlaywrightCrawler({
-    launchContext: { launchOptions: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] } },
-    maxRequestRetries: 2,
-    requestHandlerTimeoutSecs: 300,
-    async requestHandler({ page, log }) {
-        log.info(`Amazon Scraper [${pageType}] => ${targetUrl}`);
-        const context = page.context();
-        await context.clearCookies();
-        await page.setExtraHTTPHeaders({ 'Accept-Language': 'en-US,en;q=0.9' });
+async function runCrawler() {
+    const browser = await chromium.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
 
+    const context = await browser.newContext({
+        viewport: { width: 1920, height: 1080 },
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        extraHTTPHeaders: { 'Accept-Language': 'en-US,en;q=0.9' }
+    });
+
+    const page = await context.newPage();
+
+    try {
         let allProducts = [];
 
         for (let pg = 1; pg <= maxPages; pg++) {
             let url = targetUrl;
             if (pg > 1) url = targetUrl.includes('?') ? `${targetUrl}&pg=${pg}` : `${targetUrl}?pg=${pg}`;
 
-            log.info(`Page ${pg}/${maxPages}: ${url}`);
             await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
             await page.waitForTimeout(3000);
             await page.evaluate(async () => {
@@ -63,10 +69,8 @@ const crawler = new PlaywrightCrawler({
                                 const linkEl = card.querySelector('a[href*="/dp/"]');
                                 const asin = card.getAttribute('data-asin') || (linkEl && linkEl.href && linkEl.href.match(/\/dp\/([A-Z0-9]{10})/) ? linkEl.href.match(/\/dp\/([A-Z0-9]{10})/)[1] : null);
 
-                                // bought in past month
-                                const allSpans = card.querySelectorAll('span');
                                 let boughtPastMonth = null;
-                                allSpans.forEach(s => {
+                                card.querySelectorAll('span').forEach(s => {
                                     const t = s.textContent.trim();
                                     if (t.match(/bought in past month/i)) {
                                         const m = t.match(/([\d,.]+[KkMm]?\+?)\s*bought/i);
@@ -91,7 +95,6 @@ const crawler = new PlaywrightCrawler({
                     }
 
                     if (items.length === 0) {
-                        // Fallback: text-based parsing
                         const text = document.body.innerText;
                         const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
                         let currentRank = null;
@@ -146,12 +149,10 @@ const crawler = new PlaywrightCrawler({
                     const breadcrumbs = Array.from(document.querySelectorAll('#wayfinding-breadcrumbs_feature_div a')).map(a => a.textContent.trim());
                     const bullets = Array.from(document.querySelectorAll('#feature-bullets li span')).map(s => s.textContent.trim()).filter(Boolean);
 
-                    // bought in past month
                     let boughtPastMonth = null;
                     const boughtMatch = document.body.innerText.match(/([\d,.]+[KkMm]?\+?)\s*bought in past month/i);
                     if (boughtMatch) boughtPastMonth = boughtMatch[1];
 
-                    // Date first available
                     const dateMatch = document.body.innerText.match(/Date First Available\s*[:\n]\s*([A-Za-z]+ \d+,? \d{4})/);
                     const dateFirstAvailable = dateMatch ? dateMatch[1] : null;
 
@@ -210,6 +211,7 @@ const crawler = new PlaywrightCrawler({
                 const title = await page.title();
                 const content = await page.evaluate(() => document.body.innerText);
                 console.log(JSON.stringify({ status: 'SUCCESS', type: 'GENERIC', title, data: content.substring(0, 10000) }));
+                await browser.close();
                 return;
             }
 
@@ -218,7 +220,6 @@ const crawler = new PlaywrightCrawler({
                 if (!p.asin) return true;
                 const firstIdx = arr.findIndex(x => x.asin === p.asin);
                 if (firstIdx !== i) {
-                    // Merge rank into first occurrence if missing
                     if (p.rank && !arr[firstIdx].rank) arr[firstIdx].rank = p.rank;
                     if (p.boughtPastMonth && !arr[firstIdx].boughtPastMonth) arr[firstIdx].boughtPastMonth = p.boughtPastMonth;
                     return false;
@@ -247,7 +248,13 @@ const crawler = new PlaywrightCrawler({
             scrapedAt: new Date().toISOString(),
             products: allProducts
         }));
-    },
-});
 
-crawler.run([targetUrl]);
+    } catch (err) {
+        console.error(JSON.stringify({ status: 'ERROR', message: err.message }));
+        process.exit(1);
+    } finally {
+        await browser.close();
+    }
+}
+
+runCrawler();
