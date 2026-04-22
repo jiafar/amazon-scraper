@@ -1,8 +1,8 @@
 ---
 name: amazon-scraper
 description: >
-  High-performance containerized Amazon scraper (Docker + Crawlee + Playwright).
-  Supports Amazon BSR, search results, and product detail pages. Also includes a generic mode for other dynamic web pages.
+  High-performance containerized Amazon scraper (Docker + playwright-extra + Stealth plugin).
+  Bypasses Amazon headless detection. Supports Amazon BSR, search results, and product detail pages. Also includes a generic mode for other dynamic web pages.
   Use when user mentions any of these:
   爬虫, 爬取, 抓取, 采集, 数据采集, 爬数据, 抓数据, 获取数据,
   scrape, crawl, extract, fetch data, pull data,
@@ -18,7 +18,7 @@ description: >
 
 # Amazon Scraper
 
-Docker容器化爬虫，专为亚马逊数据采集优化，同时支持通用动态网页爬取。
+Docker容器化爬虫，基于 playwright-extra + Stealth 插件，专为绕过亚马逊反爬检测优化，同时支持通用动态网页爬取。
 
 ## ⚙️ 系统要求
 
