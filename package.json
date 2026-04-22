@@ -1,6 +1,6 @@
 {
   "name": "amazon-scraper",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "description": "High-performance containerized Amazon scraper with stealth mode. Bypasses headless detection. Supports BSR, search, product detail, and generic pages. Built on Docker + playwright-extra + Stealth.",
   "main": "assets/amazon_handler.js",
   "scripts": {
