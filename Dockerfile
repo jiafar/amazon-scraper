@@ -1,10 +1,14 @@
-FROM mcr.microsoft.com/playwright:v1.59.1-noble
+FROM mcr.microsoft.com/playwright:v1.40.0-jammy
 
 WORKDIR /app
 
 COPY package.json ./
-RUN npm install --production
+RUN npm install
+RUN npx playwright install chromium
 
 COPY assets/ ./assets/
+COPY scripts/ ./scripts/
 
-CMD ["node", "assets/amazon_handler.js"]
+RUN mkdir -p /data
+
+CMD ["node"]
