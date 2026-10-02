@@ -1,5 +1,15 @@
+# Never let credentials reach the build context, even by accident.
+config/proxies.json
+**/*.env
+.env
+
 node_modules
 npm-debug.log
-.clawhub
 _meta.json
+.clawhub
+.git
+*.db
+*.log
+scrapes/
+__pycache__/
 .DS_Store

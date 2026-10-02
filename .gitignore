@@ -1,4 +1,21 @@
-!package.json
-*.json
+# Credentials. Never commit; see references/sharing-checklist.md.
+config/proxies.json
+
+# Generated from Dockerfile.sh by scripts/setup.sh.
+Dockerfile
+
+# Registry metadata, written by the publisher.
 _meta.json
+
 node_modules/
+__pycache__/
+*.pyc
+*.db
+*.log
+scrapes/
+.DS_Store
+
+# NOTE: do not reintroduce a blanket `*.json` rule here. It did keep
+# config/proxies.json out of git by accident, but it also silently excluded
+# config/proxies.example.json, which is the file users need in order to
+# configure a proxy at all. Ignore the secret by name instead.

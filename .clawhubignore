@@ -2,3 +2,14 @@ node_modules
 npm-debug.log
 .DS_Store
 _meta.json
+
+# Credentials must never be bundled for distribution.
+config/proxies.json
+
+# Generated from Dockerfile.sh at setup time.
+Dockerfile
+
+__pycache__
+*.pyc
+*.db
+*.log
